@@ -5,7 +5,7 @@ import anthropic
 from datetime import datetime
 
 # Environment variables dan olish
-TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN")
+TELEGRAM_TOKEN = os.environ.get("8558832351:AAFW1FXIpJrc15-BErSL-VJoIcRz-HtZPzU")
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
 
 # Tekshirish
