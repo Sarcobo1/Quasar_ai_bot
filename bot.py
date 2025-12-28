@@ -82,15 +82,15 @@ Hozircha men test rejimida ishlayapman.
 
         # 1. Matematika mantiqi
         if any(word in user_text for word in ["necha", "+", "-", "*", "/", "hisobla"]):
-            response = "🧮 **QuasarZen (Math):** Matematik hisob-kitoblar yaqin orada GLM-4 modeli orqali amalga oshiriladi."
+            response = "🧮 **QuasarZen (Math):** Matematik hisob-kitoblar yaqin ishga tushuruladi."
         
         # 2. Kod mantiqi
         elif any(word in user_text for word in ["kod", "python", "yoz", "dastur"]):
-            response = "💻 **QuasarZen (Code):** Kod yozish uchun Qwen-2.5-Coder modelini ulayapmiz. Tez orada yordam bera olaman!"
+            response = "💻 **QuasarZen (Code):** Tez orada yordam bera olaman!"
         
         # 3. Tarix mantiqi
         elif any(word in user_text for word in ["tarix", "kim", "qachon"]):
-            response = "📜 **QuasarZen (History):** Tarixiy faktlar Llama-3.1 modeli tomonidan taqdim etiladi."
+            response = "📜 **QuasarZen (History):** Tarixiy faktlar Tez kunda taqdim etiladi."
         
         # 4. Umumiy
         else:
