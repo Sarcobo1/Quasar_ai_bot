@@ -1,25 +1,22 @@
 import os
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, CallbackQueryHandler, filters, ContextTypes
-import anthropic
 from datetime import datetime
 
-# Environment variables dan olish
-TELEGRAM_TOKEN = os.environ.get("8558832351:AAFW1FXIpJrc15-BErSL-VJoIcRz-HtZPzU")
-ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
+# ⚠️ MUHIM: Tokenni bu yerda ochiq qoldirmang, Railway Settings -> Variables qismiga qo'shing
+# Test uchun o'zgaruvchiga olyapmiz:
+TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN")
 
-# Tekshirish
-if not TELEGRAM_TOKEN or not ANTHROPIC_API_KEY:
-    raise ValueError("❌ TELEGRAM_TOKEN va ANTHROPIC_API_KEY o'rnatilmagan!")
-
-# Anthropic client
-client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+if not TELEGRAM_TOKEN:
+    # Agar Variable o'rnatilmagan bo'lsa, xato beradi (Lokalda ishlaganda xabar beradi)
+    raise ValueError("❌ TELEGRAM_TOKEN Railway Variable-larda topilmadi!")
 
 # Foydalanuvchi sessiyalarini saqlash
 user_conversations = {}
 
-class AIBot:
+class QuasarZenBot:
     def __init__(self):
+        # Application ob'ektini yaratish
         self.app = Application.builder().token(TELEGRAM_TOKEN).build()
         self.setup_handlers()
     
@@ -36,161 +33,75 @@ class AIBot:
         """Start komandasi"""
         user_id = update.effective_user.id
         user_name = update.effective_user.first_name
-        
         user_conversations[user_id] = []
         
         welcome_text = f"""
-👋 Salom {user_name}!
+👋 Salom {user_name}! 
+🌌 **QuasarZen** botiga xush kelibsiz!
 
-Men zamonaviy AI yordamchiman. Claude 4 modelidan foydalanaman.
-
-🎯 Men nima qila olaman:
-• Har qanday savolga javob berish
-• Kod yozish va tushuntirish
-• Matn tahlil qilish va yozish
-• Muammolarni hal qilish
-• Va boshqa ko'p narsalar!
+Men koinot kabi keng bilimga ega AI yordamchingizman.
+Hozircha men test rejimida ishlayapman.
 
 📝 Komandalar:
-/help - Yordam
-/clear - Suhbatni tozalash
+/help - Yordam menyusi
+/clear - Tarixni tozalash
 /settings - Sozlamalar
-
-Menga savolingizni yuboring! 🚀
 """
-        await update.message.reply_text(welcome_text)
+        await update.message.reply_text(welcome_text, parse_mode='Markdown')
     
     async def help_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """Yordam komandasi"""
-        help_text = """
-📖 Yordam Ma'lumotlari:
+        await update.message.reply_text("💡 Menga Matematika, Kod yoki Tarix haqida savol bering!")
 
-🔹 Oddiy xabar yuboring - men javob beraman
-🔹 Kod so'rang - yozib beraman
-🔹 Savol bering - tushuntiraman
-
-⚙️ Komandalar:
-/start - Botni qayta boshlash
-/clear - Suhbat tarixini tozalash
-/settings - Sozlamalarni ko'rish
-/help - Bu yordam xabari
-
-💡 Maslahat: Savollaringizni aniq va batafsil yozing!
-"""
-        await update.message.reply_text(help_text)
-    
     async def clear_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """Suhbatni tozalash"""
         user_id = update.effective_user.id
         user_conversations[user_id] = []
-        await update.message.reply_text("✅ Suhbat tarixi tozalandi! Yangi suhbat boshlaymiz.")
-    
+        await update.message.reply_text("✅ Suhbat tarixi tozalandi!")
+
     async def settings_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """Sozlamalar menyusi"""
         keyboard = [
-            [InlineKeyboardButton("🗑 Suhbatni tozalash", callback_data="clear")],
-            [InlineKeyboardButton("📊 Statistika", callback_data="stats")],
+            [InlineKeyboardButton("🗑 Tarixni tozalash", callback_data="clear")],
             [InlineKeyboardButton("ℹ️ Bot haqida", callback_data="about")]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
         await update.message.reply_text("⚙️ Sozlamalar:", reply_markup=reply_markup)
-    
+
     async def button_handler(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """Inline button bosilganda"""
         query = update.callback_query
         await query.answer()
-        
-        user_id = update.effective_user.id
-        
         if query.data == "clear":
-            user_conversations[user_id] = []
-            await query.edit_message_text("✅ Suhbat tarixi tozalandi!")
-        
-        elif query.data == "stats":
-            msg_count = len(user_conversations.get(user_id, []))
-            stats_text = f"""
-📊 Statistika:
-
-👤 Foydalanuvchi: {update.effective_user.first_name}
-💬 Xabarlar soni: {msg_count}
-🤖 Model: Claude Sonnet 4
-⏰ Vaqt: {datetime.now().strftime('%Y-%m-%d %H:%M')}
-"""
-            await query.edit_message_text(stats_text)
-        
+            user_conversations[update.effective_user.id] = []
+            await query.edit_message_text("✅ Tarix tozalandi!")
         elif query.data == "about":
-            about_text = """
-🤖 Bot haqida:
+            await query.edit_message_text("🌌 QuasarZen v1.0\nKoinot quvvati va Zen soddaligi.")
 
-Bu AI bot Claude 4 modelidan foydalanadi.
-Anthropic kompaniyasi tomonidan ishlab chiqilgan.
-
-✨ Xususiyatlar:
-• Natural til bilan suhbat
-• Ko'p tilli qo'llab-quvvatlash
-• Kod yozish
-• Yaratuvchilik mazmuni
-
-Versiya: 1.0.0
-Hosting: Railway.app
-"""
-            await query.edit_message_text(about_text)
-    
     async def handle_message(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """Oddiy xabarlarni qayta ishlash"""
-        user_id = update.effective_user.id
-        user_message = update.message.text
+        """AI o'rniga if-else mantiqi bilan ishlash"""
+        user_text = update.message.text.lower()
         
         await update.message.chat.send_action("typing")
+
+        # 1. Matematika mantiqi
+        if any(word in user_text for word in ["necha", "+", "-", "*", "/", "hisobla"]):
+            response = "🧮 **QuasarZen (Math):** Matematik hisob-kitoblar yaqin orada GLM-4 modeli orqali amalga oshiriladi."
         
-        if user_id not in user_conversations:
-            user_conversations[user_id] = []
+        # 2. Kod mantiqi
+        elif any(word in user_text for word in ["kod", "python", "yoz", "dastur"]):
+            response = "💻 **QuasarZen (Code):** Kod yozish uchun Qwen-2.5-Coder modelini ulayapmiz. Tez orada yordam bera olaman!"
         
-        user_conversations[user_id].append({
-            "role": "user",
-            "content": user_message
-        })
+        # 3. Tarix mantiqi
+        elif any(word in user_text for word in ["tarix", "kim", "qachon"]):
+            response = "📜 **QuasarZen (History):** Tarixiy faktlar Llama-3.1 modeli tomonidan taqdim etiladi."
         
-        if len(user_conversations[user_id]) > 20:
-            user_conversations[user_id] = user_conversations[user_id][-20:]
-        
-        try:
-            response = client.messages.create(
-                model="claude-sonnet-4-20250514",
-                max_tokens=2000,
-                messages=user_conversations[user_id]
-            )
-            
-            ai_response = response.content[0].text
-            
-            user_conversations[user_id].append({
-                "role": "assistant",
-                "content": ai_response
-            })
-            
-            if len(ai_response) > 4000:
-                chunks = [ai_response[i:i+4000] for i in range(0, len(ai_response), 4000)]
-                for chunk in chunks:
-                    await update.message.reply_text(chunk)
-            else:
-                await update.message.reply_text(ai_response)
-        
-        except Exception as e:
-            error_text = f"❌ Xatolik yuz berdi: {str(e)}\n\n/clear buyrug'i bilan suhbatni tozalab ko'ring."
-            await update.message.reply_text(error_text)
-    
+        # 4. Umumiy
+        else:
+            response = "🌌 **QuasarZen:** Xabaringiz qabul qilindi. Hozircha men test rejimida 'if-else' orqali javob beryapman."
+
+        await update.message.reply_text(response, parse_mode='Markdown')
+
     def run(self):
-        """Botni ishga tushirish"""
-        print("🤖 Bot Railway.app da ishga tushdi!")
-        print(f"⏰ {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        print("🤖 Bot ishga tushdi...")
         self.app.run_polling(allowed_updates=Update.ALL_TYPES)
 
 if __name__ == "__main__":
-    try:
-        bot = AIBot()
-        bot.run()
-    except KeyboardInterrupt:
-        print("\n✅ Bot to'xtatildi.")
-    except Exception as e:
-        print(f"\n❌ Xatolik: {e}")
-        raise
+    bot = QuasarZenBot()
+    bot.run()
