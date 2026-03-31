@@ -1,0 +1,17 @@
+{
+  "language": "ru",
+  "autoStart": true,
+  "cloudflareUrl": "https://test-tg-webhook.trycloudflare.com",
+  "modelPath": "./models/Qwen2.5-3B.gguf",
+  "activeModel": "Qwen2.5 3B",
+  "telegram": {
+    "token": "123456:TESTTOKEN",
+    "webhookUrl": "https://worker.dev/wh",
+    "connected": true,
+    "botName": "QuasarBot",
+    "botUsername": "quasar_ai_bot"
+  },
+  "whatsapp": {
+    "connected": false
+  }
+}
