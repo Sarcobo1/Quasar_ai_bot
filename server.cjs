@@ -488,7 +488,7 @@ app.get('/health', (req, res) => {
 // ═══════════════════════════════════════════════════════════════════
 // Frontend Catch-All Routing
 // ═══════════════════════════════════════════════════════════════════
-app.get('*', (req, res) => {
+app.get('*splat', (req, res) => {
   if (fs.existsSync(path.join(DIST_DIR, 'index.html'))) {
     res.sendFile(path.join(DIST_DIR, 'index.html'));
   } else {
